@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Full Invasion 3 - Campaign Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parchment: #26200F;
+    --parchment-edge: #16130A;
+    --ink: #E9D9AC;
+    --ink-soft: #C7AE78;
+    --gold: #D1A93C;
+    --panel-bg: #120F08;
+    --border: #5A4725;
+    --red: #C82323;
+    --green: #3E8E49;
+    --purple: #8B5BA8;
+    --font-display: 'Cinzel', serif;
+    --font-body: 'EB Garamond', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  body {
+    margin: 0;
+    background-color: #1a1610;
+    color: var(--ink);
+    font-family: var(--font-body);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: 40px;
+    overflow-x: hidden;
+  }
+
+  .bg-parallax {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 115vh;
+    background: url('Background.png') center center / cover no-repeat;
+    z-index: -3;
+    will-change: transform;
+  }
+
+  #sparksCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: -2;
+  }
+
+  .fog-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 220px;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .fog-layer-1 {
+    position: absolute;
+    bottom: -10px;
+    left: -40%;
+    width: 180%;
+    height: 100%;
+    background: radial-gradient(ellipse at bottom, rgba(210, 185, 140, 0.28) 0%, rgba(90, 75, 45, 0.15) 45%, transparent 75%);
+    filter: blur(25px);
+    animation: fogDrift1 22s linear infinite alternate;
+  }
+
+  .fog-layer-2 {
+    position: absolute;
+    bottom: -30px;
+    left: -30%;
+    width: 160%;
+    height: 80%;
+    background: radial-gradient(ellipse at bottom, rgba(255, 220, 160, 0.18) 0%, rgba(120, 95, 50, 0.08) 50%, transparent 70%);
+    filter: blur(35px);
+    animation: fogDrift2 14s ease-in-out infinite alternate;
+  }
+
+  @keyframes fogDrift1 {
+    0% { transform: translateX(0) scaleY(1); }
+    100% { transform: translateX(12%) scaleY(1.2); }
+  }
+
+  @keyframes fogDrift2 {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(-10%) translateY(-15px); }
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    max-width: 1100px;
+    margin: 20px auto 0;
+    padding: 0 20px;
+  }
+
+  .top-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(12, 10, 6, 0.45);
+    border: 1px solid rgba(90, 71, 37, 0.6);
+    color: var(--ink);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    text-decoration: none;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+
+  .top-btn:hover {
+    background: rgba(209, 169, 60, 0.22);
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  }
+
+  .top-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  .map-tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: rgba(12, 10, 6, 0.95);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.9);
+    opacity: 0;
+    transform: translate(-50%, -115%);
+    transition: opacity 0.15s ease;
+    z-index: 99;
+    text-align: center;
+  }
+
+  .map-tooltip.visible {
+    opacity: 1;
+  }
+
+  .map-tooltip-title {
+    font-family: var(--font-display);
+    color: var(--gold);
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .map-tooltip-next {
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .map-tooltip-img {
+    width: 160px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    margin-top: 6px;
+    display: block;
+  }
+
+  header {
+    max-width: 850px;
+    margin: 20px auto 30px;
+    padding: 24px 30px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.88);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
+  }
+
+  .fi-title {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(30px, 5vw, 52px);
+    margin: 0 0 6px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .fi-title .text-white {
+    color: #FFFFFF;
+    text-shadow: 0 0 12px rgba(255,255,255,0.3), 0 3px 8px rgba(0,0,0,0.9);
+  }
+
+  .fi-title .text-red {
+    color: var(--red);
+    text-shadow: 0 0 16px rgba(200, 35, 35, 0.8), 0 3px 8px rgba(0,0,0,0.9);
+  }
+
+  .subtitle-main {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin: 0 0 8px;
+  }
+
+  .subtitle-desc {
+    font-size: 16px;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin: 0;
+  }
+
+  .map-wrap {
+    max-width: 1100px;
+    margin: 0 auto 30px;
+    padding: 18px;
+    background: rgba(22, 17, 10, 0.82);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+  }
+
+  .map-frame {
+    position: relative;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    background: var(--parchment-edge);
+    padding: 6px;
+    box-shadow: inset 0 0 70px rgba(0,0,0,0.6);
+  }
+
+  .map-frame svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 2px;
+  }
+
+  @keyframes pulseRing {
+    0% {
+      r: 11px;
+      opacity: 0.95;
+      stroke-width: 2.5px;
+    }
+    100% {
+      r: 32px;
+      opacity: 0;
+      stroke-width: 0.5px;
+    }
+  }
+
+  .pulse-ring {
+    fill: none;
+    stroke: var(--gold);
+    animation: pulseRing 1.3s infinite ease-out;
+    pointer-events: none;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 14px;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .legend-item:hover {
+    background: rgba(209, 169, 60, 0.12);
+    color: var(--ink);
+  }
+
+  .legend-item.disabled {
+    opacity: 0.45;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 1px solid rgba(0,0,0,0.5);
+  }
+
+  .off-tag {
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    margin-left: 2px;
+  }
+
+  .summary-wrap {
+    max-width: 1100px;
+    margin: 0 auto 30px;
+    padding: 20px 28px;
+    background: rgba(15, 12, 7, 0.88);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  }
+
+  .summary-title {
+    font-family: var(--font-display);
+    color: var(--gold);
+    font-size: 20px;
+    text-align: center;
+    margin: 0 0 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+
+  .progress-box {
+    margin-bottom: 20px;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    font-family: var(--font-display);
+  }
+
+  .progress-bar-bg {
+    position: relative;
+    width: 100%;
+    height: 14px;
+    background: #110d07;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    cursor: default;
+  }
+
+  .progress-fill {
+    height: 100%;
+    transition: width 0.4s ease;
+    cursor: default;
+  }
+
+  .progress-fill.green {
+    background: var(--green);
+  }
+
+  .progress-fill.purple {
+    background: var(--purple);
+  }
+
+  .progress-fill.red {
+    background: rgba(200, 35, 35, 0.5);
+  }
+
+  .progress-tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: rgba(12, 10, 6, 0.97);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -120%);
+    transition: opacity 0.12s ease;
+    z-index: 120;
+  }
+
+  .progress-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .progress-tooltip-green {
+    color: var(--green);
+  }
+
+  .progress-tooltip-purple {
+    color: var(--purple);
+  }
+
+  .progress-tooltip-red {
+    color: var(--red);
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px 45px;
+  }
+
+  @media (max-width: 700px) {
+    .summary-grid {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(90, 71, 37, 0.3);
+  }
+
+  .summary-item .map-name {
+    font-family: var(--font-body);
+    font-size: 17px;
+    color: var(--ink);
+  }
+
+  .summary-item .status-label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .next-event-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 22px 28px;
+    background: rgba(10, 8, 5, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.85);
+    backdrop-filter: blur(10px);
+  }
+
+  .next-event-title-main {
+    font-family: var(--font-display);
+    color: var(--gold);
+    font-size: 20px;
+    margin: 0 0 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+
+  .next-event-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .next-event-info {
+    flex: 1 1 300px;
+  }
+
+  .next-event-map-name {
+    font-family: var(--font-display);
+    font-size: 26px;
+    color: #FFF;
+    margin: 0 0 6px;
+    font-weight: 700;
+  }
+
+  .countdown-box {
+    display: inline-block;
+    background: rgba(209, 169, 60, 0.12);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .next-event-details {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  .next-event-details strong {
+    color: var(--gold);
+    font-family: var(--font-display);
+    font-size: 14px;
+    text-transform: uppercase;
+    margin-right: 6px;
+  }
+
+  .next-event-media {
+    flex: 1 1 350px;
+    max-width: 480px;
+  }
+
+  .next-event-media img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 2px solid var(--border);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    display: block;
+  }
+
+  .signature-box {
+    max-width: 1100px;
+    margin: 16px auto 0;
+    text-align: right;
+    padding-right: 12px;
+    transition: opacity 0.3s ease;
+  }
+
+  .signature {
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-style: normal;
+    color: rgba(199, 174, 120, 0.55);
+    letter-spacing: 0.06em;
+  }
+
+  .pin {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .pin.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .pin circle.hit {
+    fill: transparent;
+  }
+
+  .pin circle.marker {
+    stroke: #fff;
+    stroke-width: 1.5;
+    transition: filter 0.15s ease, stroke-width 0.15s ease;
+  }
+
+  .pin:hover circle.marker,
+  .pin:focus circle.marker {
+    filter: brightness(1.3);
+    stroke-width: 3;
+  }
+
+  .pin text {
+    font-family: var(--font-body);
+    user-select: none;
+  }
+
+  .pin text.label-halo {
+    fill: #000;
+    stroke: #000;
+    stroke-width: 4;
+    paint-order: stroke;
+  }
+
+  .pin text.label-ink {
+    fill: #FFF;
+  }
+
+  .pin.is-next text.label-halo,
+  .pin.is-next text.label-ink {
+    font-size: 11px;
+  }
+
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 10;
+  }
+
+  .backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: min(420px, 100%);
+    background: var(--panel-bg);
+    border-left: 2px solid var(--border);
+    box-shadow: -8px 0 30px rgba(0,0,0,0.8);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 11;
+    display: flex;
+    flex-direction: column;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .panel.open {
+    transform: translateX(0);
+  }
+
+  @media (max-width: 680px) {
+    .panel {
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: auto;
+      max-height: 85vh;
+      border-left: none;
+      border-top: 2px solid var(--border);
+      border-radius: 10px 10px 0 0;
+      transform: translateY(100%);
+    }
+
+    .panel.open {
+      transform: translateY(0);
+    }
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 20px 22px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-header h2 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    margin: 0 0 4px;
+    font-weight: 600;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+
+  .close-btn:hover {
+    color: var(--ink);
+  }
+
+  .panel-body {
+    padding: 16px 22px 32px;
+    overflow-y: auto;
+  }
+
+  .panel-badge-next {
+    display: inline-block;
+    background: rgba(209, 169, 60, 0.18);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .panel-map-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .panel-section {
+    margin: 0;
+  }
+
+  .panel-section h3 {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .panel-divider {
+    border: 0;
+    height: 1px;
+    background: rgba(90, 71, 37, 0.4);
+    margin: 14px 0;
+  }
+
+  .muted {
+    color: var(--ink-soft);
+    font-size: 15px;
+    margin: 0;
+  }
+
+  .result-status {
+    font-size: 15px;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .faction-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .faction-pill {
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    background: rgba(0,0,0,0.3);
+  }
+
+  .player-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: rank;
+  }
+
+  .player-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(90, 71, 37, 0.3);
+    font-size: 15px;
+  }
+
+  .player-list li::before {
+    counter-increment: rank;
+    content: counter(rank) ".";
+    color: var(--gold);
+    font-weight: 600;
+    margin-right: 10px;
+  }
+
+  .player-name {
+    flex: 1;
+  }
+
+  .player-stat {
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  .screenshot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .screenshot-grid img {
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-parallax" id="bgParallax"></div>
+<canvas id="sparksCanvas"></canvas>
+
+<div class="fog-container">
+  <div class="fog-layer-1"></div>
+  <div class="fog-layer-2"></div>
+</div>
+
+<div class="map-tooltip" id="mapTooltip"></div>
+
+<audio id="bgAudio" src="FI3.mp3" loop></audio>
+<audio id="clickSfx" src="click.mp3" preload="auto"></audio>
+<audio id="sfx2Audio" src="sfx2.mp3" preload="auto"></audio>
+<audio id="sfx3Audio" src="sfx3.mp3" preload="auto"></audio>
+
+<div class="top-bar">
+  <a href="https://steamcommunity.com/workshop/filedetails/?id=2920558175" target="_blank" class="top-btn">
+    <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-10 10c0 4.71 3.26 8.66 7.68 9.7l2.4-3.48a3.5 3.5 0 0 1-.58-1.92c0-.36.06-.71.16-1.04l-3.07-2.2a2.5 2.5 0 1 1 2.37-3.95l3.15 2.25c.46-.23.98-.36 1.53-.36 1.93 0 3.5 1.57 3.5 3.5 0 1.25-.66 2.35-1.65 2.97l-2.6 3.77A10 10 0 0 0 22 12 10 10 0 0 0 12 2z"/></svg>
+    <span>Steam</span>
+  </a>
+
+  <a href="https://www.moddb.com/mods/full-invasion-3" target="_blank" class="top-btn">
+    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1-.9 2-2 2-2v-1-12c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2z"/></svg>
+    <span>ModDB</span>
+  </a>
+
+  <a href="https://discord.com/invite/n2VAnmMHgu" target="_blank" class="top-btn">
+    <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.793 8.18 1.793 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.077.077 0 0 1-.006.128c-.598-.344-1.22-.642-1.873-.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+    <span>Discord</span>
+  </a>
+
+  <a href="#" target="_blank" class="top-btn">
+    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    <span>Trailer</span>
+  </a>
+
+  <button class="top-btn" id="audioBtn">
+    <span>🎵 Music: ON</span>
+  </button>
+</div>
+
+<header>
+  <h1 class="fi-title"><span class="text-white">FULL INVASION</span> <span class="text-red">3</span></h1>
+  <div class="subtitle-main">Campaign Map - Across the Lands</div>
+  <p class="subtitle-desc">Select a marker to view detailed information about the event</p>
+</header>
+
+<div class="map-wrap">
+  <div class="map-frame">
+    <svg id="campaignMapSvg" viewBox="0 0 1300 900" role="img" aria-label="World map of FI3 Campaign">
+      <image href="map.jpg" x="0" y="0" width="1300" height="900" preserveAspectRatio="none" />
+      <g id="pins"></g>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <span class="legend-item" data-status="unvisited">
+      <span class="legend-dot" style="background:var(--red)"></span>
+      Upcoming
+      <span class="off-tag"></span>
+    </span>
+
+    <span class="legend-item" data-status="won">
+      <span class="legend-dot" style="background:var(--green)"></span>
+      Victory
+      <span class="off-tag"></span>
+    </span>
+
+    <span class="legend-item" data-status="lost">
+      <span class="legend-dot" style="background:var(--purple)"></span>
+      Defeat
+      <span class="off-tag"></span>
+    </span>
+  </div>
+</div>
+
+<div class="summary-wrap">
+  <h2 class="summary-title">Campaign Overview</h2>
+
+  <div class="progress-box">
+    <div class="progress-info">
+      <span id="progressText">Campaign Progress</span>
+      <span id="progressPercent">0% Played</span>
+    </div>
+
+    <div class="progress-bar-bg" id="progressBarBg">
+      <div class="progress-fill green" id="barGreen" style="width: 0%"></div>
+      <div class="progress-fill purple" id="barPurple" style="width: 0%"></div>
+      <div class="progress-fill red" id="barRed" style="width: 100%"></div>
+    </div>
+  </div>
+
+  <div class="summary-grid" id="summaryGrid"></div>
+</div>
+
+<div class="next-event-wrap">
+  <div class="next-event-title-main">Next Upcoming Event</div>
+
+  <div class="next-event-card">
+    <div class="next-event-info">
+      <div class="next-event-map-name">Hararu</div>
+
+      <div class="countdown-box" id="countdownBox">
+        ⏳ Loading countdown...
+      </div>
+
+      <ul class="next-event-details">
+        <li><strong>Date:</strong> <span id="localEventTime">October 16, 2026 at 19:00 CEST</span></li>
+        <li><strong>Factions:</strong> Warhammer vs Nehekhara</li>
+        <li><strong>Info:</strong> Forge Cost reduced, More skeletons spawn</li>
+      </ul>
+    </div>
+
+    <div class="next-event-media">
+      <img src="hararu.png" alt="Hararu Map Preview">
+    </div>
+  </div>
+</div>
+
+<div class="signature-box" id="signatureBox">
+  <span class="signature">Melodia-Patty</span>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+
+<div class="panel" id="panel">
+  <div class="panel-header">
+    <h2 id="panelTitle">-</h2>
+    <button class="close-btn" id="closeBtn" aria-label="Close">Close ✕</button>
+  </div>
+
+  <div class="panel-body" id="panelBody"></div>
+</div>
+
+<div class="progress-tooltip" id="progressTooltip"></div>
+
+<script>
+let currentY = window.scrollY;
+let targetY = window.scrollY;
+let isScrolling = false;
+
+window.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  targetY += e.deltaY * 1.25;
+  targetY = Math.max(0, Math.min(targetY, document.documentElement.scrollHeight - window.innerHeight));
+
+  if (!isScrolling) {
+    isScrolling = true;
+    requestAnimationFrame(smoothScrollLoop);
+  }
+}, { passive: false });
+
+function smoothScrollLoop() {
+  const diff = targetY - currentY;
+
+  if (Math.abs(diff) < 0.5) {
+    currentY = targetY;
+    window.scrollTo(0, currentY);
+    isScrolling = false;
+  } else {
+    currentY += diff * 0.22;
+    window.scrollTo(0, currentY);
+    requestAnimationFrame(smoothScrollLoop);
+  }
+
+  updateSignatureOpacity();
+}
+
+function updateSignatureOpacity() {
+  const sig = document.getElementById('signatureBox');
+  if (!sig) return;
+
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  if (maxScroll <= 0) return;
+
+  const distFromBottom = maxScroll - window.scrollY;
+  const opacity = Math.min(1, Math.max(0, 1 - (distFromBottom / 350)));
+
+  sig.style.opacity = opacity;
+}
+
+window.addEventListener('scroll', () => {
+  if (!isScrolling) {
+    currentY = window.scrollY;
+    targetY = window.scrollY;
+    updateSignatureOpacity();
+  }
+});
+
+updateSignatureOpacity();
+
+const audioBtn = document.getElementById('audioBtn');
+const bgAudio = document.getElementById('bgAudio');
+const clickSfx = document.getElementById('clickSfx');
+const sfx2Audio = document.getElementById('sfx2Audio');
+const sfx3Audio = document.getElementById('sfx3Audio');
+
+let isPlaying = true;
+
+bgAudio.volume = 0.35;
+
+bgAudio.play().catch(() => {
+  isPlaying = false;
+  audioBtn.querySelector('span').textContent = '🎵 Music: OFF';
+});
+
+audioBtn.addEventListener('click', () => {
+  if (isPlaying) {
+    bgAudio.pause();
+    audioBtn.querySelector('span').textContent = '🎵 Music: OFF';
+  } else {
+    bgAudio.play().then(() => {
+      audioBtn.querySelector('span').textContent = '🎵 Music: ON';
+    }).catch(err => console.log("Autoplay blocked", err));
+  }
+
+  isPlaying = !isPlaying;
+});
+
+function playClickSound() {
+  if (clickSfx) {
+    clickSfx.currentTime = 0;
+    clickSfx.volume = 0.5;
+    clickSfx.play().catch(() => {});
+  }
+}
+
+function playSfx2() {
+  if (sfx2Audio) {
+    sfx2Audio.currentTime = 0;
+    sfx2Audio.volume = 0.65;
+    sfx2Audio.play().catch(() => {});
+  }
+}
+
+function playSfx3() {
+  if (sfx3Audio) {
+    sfx3Audio.currentTime = 0;
+    sfx3Audio.volume = 0.65;
+    sfx3Audio.play().catch(() => {});
+  }
+}
+
+function updateParallax() {
+  const bg = document.getElementById('bgParallax');
+  if (!bg) return;
+
+  const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+  if (totalScroll <= 0) return;
+
+  const scrollPercent = window.scrollY / totalScroll;
+  const maxShift = bg.offsetHeight - window.innerHeight;
+  const shift = (1 - scrollPercent) * maxShift * 0.5;
+
+  bg.style.transform = `translate3d(0, -${shift}px, 0)`;
+}
+
+window.addEventListener('scroll', updateParallax);
+window.addEventListener('resize', updateParallax);
+updateParallax();
+
+const canvas = document.getElementById('sparksCanvas');
+const ctx = canvas.getContext('2d');
+let sparks = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+class Spark {
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = canvas.height + Math.random() * 40;
+    this.size = Math.random() * 2.5 + 0.8;
+    this.speedY = Math.random() * 1.5 + 0.8;
+    this.speedX = (Math.random() - 0.5) * 0.5;
+    this.opacity = Math.random() * 0.8 + 0.3;
+    this.color = Math.random() > 0.3 ? '255, 185, 50' : '235, 45, 45';
+  }
+
+  update() {
+    this.y -= this.speedY;
+    this.x += this.speedX;
+    this.opacity -= 0.0010;
+
+    if (this.y < -20 || this.opacity <= 0) {
+      this.reset();
+    }
+  }
+
+  draw() {
+    ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < 85; i++) {
+  sparks.push(new Spark());
+}
+
+function animateSparks() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  sparks.forEach(s => {
+    s.update();
+    s.draw();
+  });
+
+  requestAnimationFrame(animateSparks);
+}
+
+animateSparks();
+
+const locations = [
+  { "name": "Westblick", "x": 604, "y": 719, "status": "lost", "eventDate": "To Be Announced", "info": "The Southern Empire must face a new threat. Defend the coastal fortress from hordes of skeletons. Only Empire-type units are allowed. Forge Cost: 5.", "factions": ["Empire", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
+  { "name": "Khemri", "x": 851, "y": 785, "status": "unvisited", "eventDate": "To Be Announced", "info": "Sandy Bones, City of Kings, was once the capital of the empire of the Tomb King Settra. Only Aserai-type units are allowed. Forge Cost: 5.", "factions": ["Aserai", "Invasion of Nehekhara"], "topPlayers": [{ "name": "Player one", "stat": "15 kills" }, { "name": "Player two", "stat": "22 kills" }], "screenshots": [] },
+  { "name": "Norheim", "x": 908, "y": 33, "status": "won", "eventDate": "12/01/2025", "info": "The axe is the answer, no matter the question. Only Sturgia-type units are allowed; Cavalry is disabled, Forge Cost: 5.", "factions": ["Sturgia", "Invasion of Calradia"], "topPlayers": [{ "name": "Player one", "stat": "38 kills" }, { "name": "Player two", "stat": "33 kills" }], "screenshots": [] },
+  { "name": "Trenches", "x": 1108, "y": 614, "status": "unvisited", "eventDate": "To Be Announced", "info": "Defend the trenches in these ruined, lifeless wastelands. Do not let them advance any further! Forge Cost: 5.", "factions": ["Warhammer", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
+  { "name": "Hararu", "x": 1040, "y": 527, "status": "unvisited", "eventDate": "October 16, 2026, 19:00 CEST", "info": "A battle on the frontier of the desolate wastelands, where the dead lands begin. Forge Cost: 4.", "isNext": true, "factions": ["Warhammer", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
+  { "name": "Mecalovea", "x": 844, "y": 143, "status": "unvisited", "eventDate": "To Be Announced", "info": "A struggle for control of the North. Defend one of the greatest fortresses in the region. All Calradia units allowed. Forge Cost: 5.", "factions": ["Calradia", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
+  { "name": "Butterlord Bastion", "x": 435, "y": 443, "status": "unvisited", "eventDate": "To Be Announced", "info": "A mighty fortress overlooking the lake. Butter lovers are welcome. Only Vlandia-type units are allowed. Forge Cost: 6.", "factions": ["Vlandia", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
+  { "name": "Ruins of Basamu", "x": 972, "y": 725, "status": "unvisited", "eventDate": "To Be Announced", "info": "Former enemies join forces in the face of a new threat. Aserai and Khuzait-type units are allowed. Forge Cost: 6.", "factions": ["Aserai and Khuzait", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
+  { "name": "Coastal Cliffs", "x": 515, "y": 278, "status": "unvisited", "eventDate": "To Be Announced", "info": "Defend the cold northern coast and keep watch for enemy ships. Forge Cost: 5.", "factions": ["Warhammer", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
+  { "name": "Swamped", "x": 882, "y": 409, "status": "unvisited", "eventDate": "To Be Announced", "info": "Protect the Swamp as somebody once told you. Forge Cost: 4.", "factions": ["Warhammer", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
+  { "name": "Castrum", "x": 751, "y": 438, "status": "unvisited", "eventDate": "To Be Announced", "info": "The people of the forest must stand against the Empire. Only Batania-type units are allowed. Forge Cost: 5.", "factions": ["Batania", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
+  { "name": "Risto", "x": 303, "y": 710, "status": "unvisited", "eventDate": "To Be Announced", "info": "Defend the beautiful southern valley. Only Empire-coalition type units are allowed. Forge Cost: 6.", "factions": ["Empire Coalition", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
+  { "name": "Rocca Calascio", "x": 715, "y": 329, "status": "unvisited", "eventDate": "To Be Announced", "info": "A battlefield perfect for cavalry, where two of the finest cavalry nations join forces. Vlandia and Khuzait-type units are allowed. Forge Cost: 6.", "factions": ["Vlandia & Khuzait", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
+  { "name": "Loberg Castle", "x": 619, "y": 527, "status": "unvisited", "eventDate": "To Be Announced", "info": "Castle defense! A hard-fought clash between butter enjoyers and the armies of Nehekhara. All Calradia-type units are allowed. Forge Cost: 5.", "factions": ["Calradia", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
+  { "name": "Dreadstone", "x": 1122, "y": 341, "status": "unvisited", "eventDate": "To Be Announced", "info": "Defend the position deep in the dark lands. Forge Cost: 4.", "factions": ["Warhammer", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
+  { "name": "Arbor Montis", "x": 317, "y": 428, "status": "unvisited", "eventDate": "To Be Announced", "info": "Glorious defense in the forest highlands. Only Batania-Allies-type units are allowed. Forge Cost: 5 ", "factions": ["Batania Allies", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
+  { "name": "Fort Zona", "x": 110, "y": 467, "status": "unvisited", "eventDate": "To Be Announced", "info": "Surrounded by the sea, we are trapped on a small island, with enemy ships attacking us from both sides. Forge Cost: 6.", "factions": ["Warhammer", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
+  { "name": "Arcadia", "x": 496, "y": 700, "status": "unvisited", "eventDate": "To Be Announced", "info": "The Empire must hold its ground against the forces of Calradia. Time for final battle. Only Empire-type units are allowed. Forge Cost: 4.", "factions": ["Empire", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] }
+
+
+
+
+];
+
+const STATUS_COLOR = {
+  unvisited: "var(--red)",
+  won: "var(--green)",
+  lost: "var(--purple)"
+};
+
+const STATUS_LABEL = {
+  unvisited: "Upcoming",
+  won: "Victory",
+  lost: "Defeat"
+};
+
+const svgNS = "http://www.w3.org/2000/svg";
+
+function wrapName(name) {
+  if (name.indexOf(" ") === -1) return [name];
+
+  const words = name.split(" ");
+
+  if (words.length === 2) return words;
+
+  let best = 1;
+  let bestDiff = Infinity;
+
+  for (let i = 1; i < words.length; i++) {
+    const a = words.slice(0, i).join(" ").length;
+    const b = words.slice(i).join(" ").length;
+    const diff = Math.abs(a - b);
+
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = i;
+    }
+  }
+
+  return [
+    words.slice(0, best).join(" "),
+    words.slice(best).join(" ")
+  ];
+}
+
+const mapTooltip = document.getElementById('mapTooltip');
+
+function showTooltip(e, loc) {
+  const firstWord = loc.name.trim().split(/\s+/)[0].toLowerCase();
+  const imgFilename = `${firstWord}.png`;
+  const nextBadge = loc.isNext ? `<div class="map-tooltip-next">⚔️ NEXT UPCOMING EVENT</div>` : '';
+
+  mapTooltip.innerHTML = `
+    <div class="map-tooltip-title">${loc.name}</div>
+    ${nextBadge}
+    <img src="${imgFilename}" alt="${loc.name}" class="map-tooltip-img" onerror="this.style.display='none'">
+  `;
+
+  mapTooltip.classList.add('visible');
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  mapTooltip.style.left = e.clientX + 'px';
+  mapTooltip.style.top = e.clientY + 'px';
+}
+
+function hideTooltip() {
+  mapTooltip.classList.remove('visible');
+}
+
+const pinsG = document.getElementById("pins");
+
+locations.forEach((loc) => {
+  const g = document.createElementNS(svgNS, "g");
+
+  g.setAttribute("class", `pin ${loc.isNext ? 'is-next' : ''}`);
+  g.setAttribute("data-status", loc.status);
+  g.setAttribute("tabindex", "0");
+  g.setAttribute("role", "button");
+  g.setAttribute("aria-label", loc.name);
+
+  if (loc.isNext) {
+    const pulse = document.createElementNS(svgNS, "circle");
+    pulse.setAttribute("class", "pulse-ring");
+    pulse.setAttribute("cx", loc.x);
+    pulse.setAttribute("cy", loc.y);
+    g.appendChild(pulse);
+  }
+
+  const hit = document.createElementNS(svgNS, "circle");
+  hit.setAttribute("class", "hit");
+  hit.setAttribute("cx", loc.x);
+  hit.setAttribute("cy", loc.y);
+  hit.setAttribute("r", "22");
+  hit.setAttribute("pointer-events", "all");
+  g.appendChild(hit);
+
+  const circle = document.createElementNS(svgNS, "circle");
+  circle.setAttribute("class", "marker");
+  circle.setAttribute("cx", loc.x);
+  circle.setAttribute("cy", loc.y);
+  circle.setAttribute("r", "11");
+  circle.setAttribute("fill", STATUS_COLOR[loc.status]);
+  circle.setAttribute("pointer-events", "none");
+  g.appendChild(circle);
+
+  const lines = wrapName(loc.name);
+
+  ["label-halo", "label-ink"].forEach((cls) => {
+    const text = document.createElementNS(svgNS, "text");
+
+    text.setAttribute("class", cls);
+    text.setAttribute("x", loc.x);
+    text.setAttribute("y", loc.y + 27);
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("font-size", loc.isNext ? "11" : "13");
+    text.setAttribute("pointer-events", "none");
+
+    lines.forEach((line, li) => {
+      const tspan = document.createElementNS(svgNS, "tspan");
+      tspan.setAttribute("x", loc.x);
+      tspan.setAttribute("dy", li === 0 ? "0" : "15");
+      tspan.textContent = line;
+      text.appendChild(tspan);
+    });
+
+    g.appendChild(text);
+  });
+
+  g.addEventListener("mouseenter", (e) => showTooltip(e, loc));
+  g.addEventListener("mousemove", moveTooltip);
+  g.addEventListener("mouseleave", hideTooltip);
+  g.addEventListener("click", () => {
+    hideTooltip();
+    openPanel(loc);
+  });
+
+  g.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") openPanel(loc);
+  });
+
+  pinsG.appendChild(g);
+});
+
+document.querySelectorAll('.legend-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const status = item.dataset.status;
+    item.classList.toggle('disabled');
+
+    const isDisabled = item.classList.contains('disabled');
+    const offTag = item.querySelector('.off-tag');
+
+    offTag.textContent = isDisabled ? '(OFF)' : '';
+
+    document.querySelectorAll(`.pin[data-status="${status}"]`).forEach(pin => {
+      if (isDisabled) {
+        pin.classList.add('hidden');
+      } else {
+        pin.classList.remove('hidden');
+      }
+    });
+  });
+});
+
+const summaryGrid = document.getElementById("summaryGrid");
+
+let wonCount = 0;
+let lostCount = 0;
+let totalCount = locations.length;
+
+locations.forEach((loc) => {
+  if (loc.status === 'won') wonCount++;
+  if (loc.status === 'lost') lostCount++;
+
+  const div = document.createElement("div");
+  div.className = "summary-item";
+
+  // Dodano style inline dla kursora i efektu najechania, aby wskazać klikalność
+  div.innerHTML = `
+    <span class="map-name" style="cursor: pointer; transition: color 0.2s ease;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--ink)'">${loc.name}</span>
+    <span class="status-label" style="color: ${STATUS_COLOR[loc.status]};">${STATUS_LABEL[loc.status]}</span>
+  `;
+
+  // Pobranie nowo utworzonego elementu z nazwą mapy i przypisanie akcji kliknięcia
+  const mapNameEl = div.querySelector('.map-name');
+  mapNameEl.addEventListener('click', () => {
+    openPanel(loc);
+  });
+
+  summaryGrid.appendChild(div);
+});
+
+const playedCount = wonCount + lostCount;
+const upcomingCount = totalCount - playedCount;
+const playedPct = (playedCount / totalCount) * 100;
+const wonPct = (wonCount / totalCount) * 100;
+const lostPct = (lostCount / totalCount) * 100;
+const upcomingPct = 100 - wonPct - lostPct;
+
+const barGreen = document.getElementById('barGreen');
+const barPurple = document.getElementById('barPurple');
+const barRed = document.getElementById('barRed');
+
+barGreen.style.width = wonPct + '%';
+barPurple.style.width = lostPct + '%';
+barRed.style.width = upcomingPct + '%';
+
+document.getElementById('progressText').textContent = 'Campaign Progress';
+document.getElementById('progressPercent').textContent = `${Math.round(playedPct)}% Played`;
+
+const progressTooltip = document.getElementById('progressTooltip');
+
+function showProgressTooltip(type, e) {
+  if (type === 'green') {
+    progressTooltip.innerHTML = `<span class="progress-tooltip-green">Won: ${wonCount}</span>`;
+  }
+
+  if (type === 'purple') {
+    progressTooltip.innerHTML = `<span class="progress-tooltip-purple">Lost: ${lostCount}</span>`;
+  }
+
+  if (type === 'red') {
+    progressTooltip.innerHTML = `<span class="progress-tooltip-red">Upcoming: ${upcomingCount}</span>`;
+  }
+
+  progressTooltip.classList.add('visible');
+  moveProgressTooltip(e);
+}
+
+function moveProgressTooltip(e) {
+  progressTooltip.style.left = e.clientX + 'px';
+  progressTooltip.style.top = e.clientY + 'px';
+}
+
+function hideProgressTooltip() {
+  progressTooltip.classList.remove('visible');
+}
+
+barGreen.addEventListener('mouseenter', (e) => showProgressTooltip('green', e));
+barGreen.addEventListener('mousemove', moveProgressTooltip);
+barGreen.addEventListener('mouseleave', hideProgressTooltip);
+
+barPurple.addEventListener('mouseenter', (e) => showProgressTooltip('purple', e));
+barPurple.addEventListener('mousemove', moveProgressTooltip);
+barPurple.addEventListener('mouseleave', hideProgressTooltip);
+
+barRed.addEventListener('mouseenter', (e) => showProgressTooltip('red', e));
+barRed.addEventListener('mousemove', moveProgressTooltip);
+barRed.addEventListener('mouseleave', hideProgressTooltip);
+
+const eventTargetDate = new Date("2026-10-16T19:00:00+02:00");
+
+const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+
+function getPart(parts, type) {
+  const part = parts.find(p => p.type === type);
+  return part ? part.value : '';
+}
+
+function formatEventDate(date) {
+  const dateParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: userTimeZone,
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  }).formatToParts(date);
+
+  const timeParts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: userTimeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    hourCycle: 'h23'
+  }).formatToParts(date);
+
+  const zoneParts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: userTimeZone,
+    timeZoneName: 'short'
+  }).formatToParts(date);
+
+  const weekday = getPart(dateParts, 'weekday');
+  const month = getPart(dateParts, 'month');
+  const day = getPart(dateParts, 'day');
+  const year = getPart(dateParts, 'year');
+  const hour = getPart(timeParts, 'hour');
+  const minute = getPart(timeParts, 'minute');
+  const timeZoneName = getPart(zoneParts, 'timeZoneName');
+
+  return `${weekday}, ${month} ${day}, ${year} at ${hour}:${minute} ${timeZoneName}`;
+}
+
+const localFormattedDate = formatEventDate(eventTargetDate);
+
+document.getElementById('localEventTime').textContent = localFormattedDate;
+
+function updateCountdown() {
+  const now = new Date().getTime();
+  const diff = eventTargetDate.getTime() - now;
+  const countdownEl = document.getElementById('countdownBox');
+
+  if (diff <= 0) {
+    countdownEl.textContent = "⚔️ BATTLE IN PROGRESS / FINISHED";
+    return;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  countdownEl.textContent = `⏳ ${days}d ${hours}h ${minutes}m ${seconds}s until battle`;
+}
+
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+const panel = document.getElementById("panel");
+const backdrop = document.getElementById("backdrop");
+const panelTitle = document.getElementById("panelTitle");
+const panelBody = document.getElementById("panelBody");
+
+function openPanel(loc) {
+  if (loc.isNext) {
+    playSfx2();
+  } else {
+    playClickSound();
+  }
+
+  panelTitle.textContent = loc.name;
+
+  const firstWord = loc.name.trim().split(/\s+/)[0].toLowerCase();
+  const imgFilename = `${firstWord}.png`;
+  const isPlayed = loc.status === 'won' || loc.status === 'lost';
+  const nextBanner = loc.isNext ? `<div class="panel-badge-next">⚔️ NEXT UPCOMING EVENT</div>` : '';
+
+  let resultText = '';
+  let resultStyle = '';
+
+  if (loc.status === 'won') {
+    resultText = 'Victory';
+    resultStyle = 'color: var(--green);';
+  } else if (loc.status === 'lost') {
+    resultText = 'Defeat';
+    resultStyle = 'color: var(--purple);';
+  } else {
+    resultText = 'Event has not taken place yet';
+  }
+
+  let html = `
+    ${nextBanner}
+
+    <img src="${imgFilename}" alt="${loc.name}" class="panel-map-img" onerror="this.style.display='none'">
+
+    <div class="panel-section">
+      <h3>Event Date</h3>
+      <p class="muted">${loc.isNext ? localFormattedDate : (loc.eventDate || "To Be Announced")}</p>
+    </div>
+
+    <hr class="panel-divider">
+
+    <div class="panel-section">
+      <h3>Factions</h3>
+      <div class="faction-list">
+        ${loc.factions && loc.factions.length
+          ? loc.factions.map(f => `<span class="faction-pill">${f}</span>`).join("")
+          : `<p class="muted">To Be Announced</p>`}
+      </div>
+    </div>
+
+    <hr class="panel-divider">
+
+    <div class="panel-section">
+      <h3>Info</h3>
+      <p class="muted">${loc.info || "No details available."}</p>
+    </div>
+
+    <hr class="panel-divider">
+
+    <div class="panel-section">
+      <h3>Result</h3>
+      <p class="result-status" style="${resultStyle}">${resultText}</p>
+    </div>
+
+    <hr class="panel-divider">
+
+    <div class="panel-section">
+      <h3>Top Players</h3>
+      ${isPlayed && loc.topPlayers && loc.topPlayers.length
+        ? `<ol class="player-list">${loc.topPlayers.map(p => `<li><span class="player-name">${p.name}</span><span class="player-stat">${p.stat}</span></li>`).join("")}</ol>`
+        : `<p class="muted">Event has not taken place yet</p>`}
+    </div>
+
+    <hr class="panel-divider">
+
+    <div class="panel-section">
+      <h3>Screenshots</h3>
+      ${isPlayed && loc.screenshots && loc.screenshots.length
+        ? `<div class="screenshot-grid">${loc.screenshots.map(src => `<img src="${src}" alt="Screenshot from ${loc.name}">`).join("")}</div>`
+        : `<p class="muted">Event has not taken place yet</p>`}
+    </div>
+  `;
+
+  panelBody.innerHTML = html;
+  panel.classList.add("open");
+  backdrop.classList.add("open");
+}
+
+function closePanel() {
+  if (!panel.classList.contains("open")) return;
+
+  playSfx3();
+  panel.classList.remove("open");
+  backdrop.classList.remove("open");
+}
+
+document.getElementById("closeBtn").addEventListener("click", closePanel);
+backdrop.addEventListener("click", closePanel);
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closePanel();
+});
+</script>
+</body>
+</html>
