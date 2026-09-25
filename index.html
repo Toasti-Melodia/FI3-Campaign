@@ -933,7 +933,7 @@
       </div>
 
       <ul class="next-event-details">
-        <li><strong>Date:</strong> <span id="localEventTime">November 14, 2026 at 20:00 CEST</span></li>
+        <li><strong>Date:</strong> <span id="localEventTime">To Be Announced</span></li>
         <li><strong>Factions:</strong> Warhammer vs Nehekhara</li>
         <li><strong>Info:</strong> Forge Cost reduced, More skeletons spawn</li>
       </ul>
@@ -1153,7 +1153,6 @@ const locations = [
   { "name": "Westblick", "x": 604, "y": 719, "status": "unvisited", "eventDate": "To Be Announced", "info": "The Southern Empire must face a new threat. Defend the coastal fortress from hordes of skeletons. Only Empire-type units are allowed. Forge Cost: 5.", "isNext": true, "factions": ["Empire", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
   { "name": "Khemri", "x": 851, "y": 785, "status": "unvisited", "eventDate": "To Be Announced", "info": "Sandy Bones, City of Kings, was once the capital of the empire of the Tomb King Settra. Only Aserai-type units are allowed. Forge Cost: 5.", "factions": ["Aserai", "Invasion of Nehekhara"], "topPlayers": [{ "name": "Player one", "stat": "15 kills" }, { "name": "Player two", "stat": "22 kills" }], "screenshots": [] },
   { "name": "Norheim", "x": 908, "y": 33, "status": "unvisited", "eventDate": "To Be Announced", "info": "The axe is the answer, no matter the question. Only Sturgia-type units are allowed; Cavalry is disabled, Forge Cost: 5.", "factions": ["Sturgia", "Invasion of Calradia"], "topPlayers": [{ "name": "Player one", "stat": "38 kills" }, { "name": "Player two", "stat": "33 kills" }], "screenshots": [] },
-  { "name": "Trenches", "x": 1108, "y": 614, "status": "unvisited", "eventDate": "To Be Announced", "info": "Defend the trenches in these ruined, lifeless wastelands. Do not let them advance any further! Forge Cost: 5.", "factions": ["Warhammer", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
   { "name": "Hararu", "x": 1040, "y": 527, "status": "unvisited", "eventDate": "To Be Announced", "info": "A battle on the frontier of the desolate wastelands, where the dead lands begin. Forge Cost: 4.", "isNext": false, "factions": ["Warhammer", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
   { "name": "Mecalovea", "x": 844, "y": 143, "status": "unvisited", "eventDate": "To Be Announced", "info": "A struggle for control of the North. Defend one of the greatest fortresses in the region. All Calradia units allowed. Forge Cost: 5.", "factions": ["Calradia", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
   { "name": "Butterlord Bastion", "x": 435, "y": 443, "status": "unvisited", "eventDate": "To Be Announced", "info": "A mighty fortress overlooking the lake. Butter lovers are welcome. Only Vlandia-type units are allowed. Forge Cost: 6.", "factions": ["Vlandia", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
@@ -1421,6 +1420,10 @@ barRed.addEventListener('mouseenter', (e) => showProgressTooltip('red', e));
 barRed.addEventListener('mousemove', moveProgressTooltip);
 barRed.addEventListener('mouseleave', hideProgressTooltip);
 
+// Set to true and fill in the real date below once the next event is confirmed.
+// The countdown system underneath keeps working as before - this is just a switch.
+const EVENT_ANNOUNCED = false;
+
 const eventTargetDate = new Date("2026-11-14T20:00:00+02:00");
 
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
@@ -1463,14 +1466,20 @@ function formatEventDate(date) {
   return `${weekday}, ${month} ${day}, ${year} at ${hour}:${minute} ${timeZoneName}`;
 }
 
-const localFormattedDate = formatEventDate(eventTargetDate);
+const localFormattedDate = EVENT_ANNOUNCED ? formatEventDate(eventTargetDate) : "To Be Announced";
 
 document.getElementById('localEventTime').textContent = localFormattedDate;
 
 function updateCountdown() {
+  const countdownEl = document.getElementById('countdownBox');
+
+  if (!EVENT_ANNOUNCED) {
+    countdownEl.textContent = "⏳ Date to be announced";
+    return;
+  }
+
   const now = new Date().getTime();
   const diff = eventTargetDate.getTime() - now;
-  const countdownEl = document.getElementById('countdownBox');
 
   if (diff <= 0) {
     countdownEl.textContent = "⚔️ BATTLE IN PROGRESS / FINISHED";
