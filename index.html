@@ -46,7 +46,7 @@
     left: 0;
     width: 100%;
     height: 115vh;
-    background: url('Background.png') center center / cover no-repeat;
+    background: url('background.jpg') center center / cover no-repeat;
     z-index: -3;
     will-change: transform;
   }
@@ -561,9 +561,9 @@
 
   .signature {
     font-family: var(--font-body);
-    font-size: 11px;
+    font-size: 11.3px;
     font-style: normal;
-    color: rgba(199, 174, 120, 0.55);
+    color: rgba(199, 174, 120, 0.78);
     letter-spacing: 0.06em;
   }
 
@@ -852,12 +852,12 @@
     <span>ModDB</span>
   </a>
 
-  <a href="https://discord.com/invite/n2VAnmMHgu" target="_blank" class="top-btn">
+  <a href="https://discord.gg/QK7RBdutQK" target="_blank" class="top-btn">
     <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.793 8.18 1.793 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.077.077 0 0 1-.006.128c-.598-.344-1.22-.642-1.873-.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
     <span>Discord</span>
   </a>
 
-  <a href="#" target="_blank" class="top-btn">
+  <a href="https://www.youtube.com/watch?v=TOEu0cLtrWw" target="_blank" class="top-btn">
     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     <span>Trailer</span>
   </a>
@@ -933,14 +933,14 @@
       </div>
 
       <ul class="next-event-details">
-        <li><strong>Date:</strong> <span id="localEventTime">October 16, 2026 at 19:00 CEST</span></li>
+        <li><strong>Date:</strong> <span id="localEventTime">November 14, 2026 at 20:00 CEST</span></li>
         <li><strong>Factions:</strong> Warhammer vs Nehekhara</li>
         <li><strong>Info:</strong> Forge Cost reduced, More skeletons spawn</li>
       </ul>
     </div>
 
     <div class="next-event-media">
-      <img src="hararu.png" alt="Hararu Map Preview">
+      <img src="westblick.jpg" alt="Westblick Map Preview">
     </div>
   </div>
 </div>
@@ -1150,11 +1150,11 @@ function animateSparks() {
 animateSparks();
 
 const locations = [
-  { "name": "Westblick", "x": 604, "y": 719, "status": "lost", "eventDate": "To Be Announced", "info": "The Southern Empire must face a new threat. Defend the coastal fortress from hordes of skeletons. Only Empire-type units are allowed. Forge Cost: 5.", "factions": ["Empire", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
+  { "name": "Westblick", "x": 604, "y": 719, "status": "unvisited", "eventDate": "To Be Announced", "info": "The Southern Empire must face a new threat. Defend the coastal fortress from hordes of skeletons. Only Empire-type units are allowed. Forge Cost: 5.", "isNext": true, "factions": ["Empire", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
   { "name": "Khemri", "x": 851, "y": 785, "status": "unvisited", "eventDate": "To Be Announced", "info": "Sandy Bones, City of Kings, was once the capital of the empire of the Tomb King Settra. Only Aserai-type units are allowed. Forge Cost: 5.", "factions": ["Aserai", "Invasion of Nehekhara"], "topPlayers": [{ "name": "Player one", "stat": "15 kills" }, { "name": "Player two", "stat": "22 kills" }], "screenshots": [] },
-  { "name": "Norheim", "x": 908, "y": 33, "status": "won", "eventDate": "12/01/2025", "info": "The axe is the answer, no matter the question. Only Sturgia-type units are allowed; Cavalry is disabled, Forge Cost: 5.", "factions": ["Sturgia", "Invasion of Calradia"], "topPlayers": [{ "name": "Player one", "stat": "38 kills" }, { "name": "Player two", "stat": "33 kills" }], "screenshots": [] },
+  { "name": "Norheim", "x": 908, "y": 33, "status": "unvisited", "eventDate": "To Be Announced", "info": "The axe is the answer, no matter the question. Only Sturgia-type units are allowed; Cavalry is disabled, Forge Cost: 5.", "factions": ["Sturgia", "Invasion of Calradia"], "topPlayers": [{ "name": "Player one", "stat": "38 kills" }, { "name": "Player two", "stat": "33 kills" }], "screenshots": [] },
   { "name": "Trenches", "x": 1108, "y": 614, "status": "unvisited", "eventDate": "To Be Announced", "info": "Defend the trenches in these ruined, lifeless wastelands. Do not let them advance any further! Forge Cost: 5.", "factions": ["Warhammer", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
-  { "name": "Hararu", "x": 1040, "y": 527, "status": "unvisited", "eventDate": "October 16, 2026, 19:00 CEST", "info": "A battle on the frontier of the desolate wastelands, where the dead lands begin. Forge Cost: 4.", "isNext": true, "factions": ["Warhammer", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
+  { "name": "Hararu", "x": 1040, "y": 527, "status": "unvisited", "eventDate": "To Be Announced", "info": "A battle on the frontier of the desolate wastelands, where the dead lands begin. Forge Cost: 4.", "isNext": false, "factions": ["Warhammer", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
   { "name": "Mecalovea", "x": 844, "y": 143, "status": "unvisited", "eventDate": "To Be Announced", "info": "A struggle for control of the North. Defend one of the greatest fortresses in the region. All Calradia units allowed. Forge Cost: 5.", "factions": ["Calradia", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
   { "name": "Butterlord Bastion", "x": 435, "y": 443, "status": "unvisited", "eventDate": "To Be Announced", "info": "A mighty fortress overlooking the lake. Butter lovers are welcome. Only Vlandia-type units are allowed. Forge Cost: 6.", "factions": ["Vlandia", "Invasion of Calradia"], "topPlayers": [], "screenshots": [] },
   { "name": "Ruins of Basamu", "x": 972, "y": 725, "status": "unvisited", "eventDate": "To Be Announced", "info": "Former enemies join forces in the face of a new threat. Aserai and Khuzait-type units are allowed. Forge Cost: 6.", "factions": ["Aserai and Khuzait", "Invasion of Nehekhara"], "topPlayers": [], "screenshots": [] },
@@ -1219,7 +1219,7 @@ const mapTooltip = document.getElementById('mapTooltip');
 
 function showTooltip(e, loc) {
   const firstWord = loc.name.trim().split(/\s+/)[0].toLowerCase();
-  const imgFilename = `${firstWord}.png`;
+  const imgFilename = `${firstWord}.jpg`;
   const nextBadge = loc.isNext ? `<div class="map-tooltip-next">⚔️ NEXT UPCOMING EVENT</div>` : '';
 
   mapTooltip.innerHTML = `
@@ -1421,7 +1421,7 @@ barRed.addEventListener('mouseenter', (e) => showProgressTooltip('red', e));
 barRed.addEventListener('mousemove', moveProgressTooltip);
 barRed.addEventListener('mouseleave', hideProgressTooltip);
 
-const eventTargetDate = new Date("2026-10-16T19:00:00+02:00");
+const eventTargetDate = new Date("2026-11-14T20:00:00+02:00");
 
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
@@ -1503,7 +1503,7 @@ function openPanel(loc) {
   panelTitle.textContent = loc.name;
 
   const firstWord = loc.name.trim().split(/\s+/)[0].toLowerCase();
-  const imgFilename = `${firstWord}.png`;
+  const imgFilename = `${firstWord}.jpg`;
   const isPlayed = loc.status === 'won' || loc.status === 'lost';
   const nextBanner = loc.isNext ? `<div class="panel-badge-next">⚔️ NEXT UPCOMING EVENT</div>` : '';
 
