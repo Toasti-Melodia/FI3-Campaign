@@ -443,13 +443,17 @@
 
   .summary-grid {
     display: grid;
+    grid-auto-flow: column;
     grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(var(--rows, 9), auto);
     gap: 4px 45px;
   }
 
   @media (max-width: 700px) {
     .summary-grid {
+      grid-auto-flow: row;
       grid-template-columns: 1fr;
+      grid-template-rows: none;
       gap: 4px;
     }
   }
@@ -1349,8 +1353,8 @@ let wonCount = 0;
 let lostCount = 0;
 let totalCount = locations.length;
 
-const sortedLocations = [...locations].sort((a, b) => a.name.localeCompare(b.name));
-
+const sortedLocations = [...locations].sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
+summaryGrid.style.setProperty('--rows', Math.ceil(sortedLocations.length / 2));
 sortedLocations.forEach((loc) => {
   if (loc.status === 'won') wonCount++;
   if (loc.status === 'lost') lostCount++;
