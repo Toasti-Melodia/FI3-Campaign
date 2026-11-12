@@ -1349,7 +1349,9 @@ let wonCount = 0;
 let lostCount = 0;
 let totalCount = locations.length;
 
-locations.forEach((loc) => {
+const sortedLocations = [...locations].sort((a, b) => a.name.localeCompare(b.name));
+
+sortedLocations.forEach((loc) => {
   if (loc.status === 'won') wonCount++;
   if (loc.status === 'lost') lostCount++;
 
